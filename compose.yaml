@@ -1,0 +1,19 @@
+services:
+  lavalink:
+    restart: always
+    image: ghcr.io/lavalink-devs/lavalink:4
+    healthcheck:
+      test: 'echo lavalink'
+      interval: 10s
+      timeout: 10s
+      retries: 3
+    env_file: ".env"
+    volumes:
+      - ./lavalink/application.yml:/opt/Lavalink/application.yml
+    expose:
+      - 2333
+  bot_maid:
+    build: ./BotMaid
+    depends_on:
+      lavalink:
+        condition: service_healthy

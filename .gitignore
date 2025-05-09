@@ -1,0 +1,4 @@
+.env
+BotMaid/appsettings.json
+BotMaid/bin
+BotMaid/obj
