@@ -14,11 +14,6 @@ builder.Services
 
 var host = builder.Build();
 
-// Add commands using minimal APIs
-host.AddSlashCommand("ping", "Ping!", () => "Pong!")
-    .AddUserCommand("Username", (User user) => user.Username)
-    .AddMessageCommand("Length", (RestMessage message) => message.Content.Length.ToString());
-
 // Add commands from modules
 host.AddModules(typeof(Program).Assembly);
 

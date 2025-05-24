@@ -12,5 +12,8 @@ RUN dotnet publish -o out
 FROM mcr.microsoft.com/dotnet/aspnet:9.0
 WORKDIR /App
 COPY --from=build /App/out .
-COPY --from=build /App/appsettings.json .
+
+# Copy appsettings to runtime image
+COPY ./appsettings.json .
+
 ENTRYPOINT ["dotnet", "BotMaid.dll"]
