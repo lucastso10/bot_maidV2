@@ -1,16 +1,24 @@
 ﻿using Microsoft.Extensions.Hosting;
 
 using NetCord;
+using NetCord.Rest;
 using NetCord.Hosting.Gateway;
 using NetCord.Hosting.Services;
 using NetCord.Hosting.Services.ApplicationCommands;
-using NetCord.Rest;
+using Lavalink4NET.NetCord;
+using Lavalink4NET.Extensions;
 
 var builder = Host.CreateApplicationBuilder(args);
 
 builder.Services
+    .ConfigureLavalink(config =>
+    {
+        config.BaseAddress = new Uri("http://lavalink:2333");
+    })
     .AddDiscordGateway()
+    .AddLavalink()
     .AddApplicationCommands();
+
 
 var host = builder.Build();
 
