@@ -36,6 +36,6 @@ public class ExampleModule : ApplicationCommandModule<ApplicationCommandContext>
         }
     }
 
-    [SlashCommand("pong", "Pong!")]
-    public static string Pong() => "Ping!";
+    [SlashCommand("ping", "Ping!")]
+    public static string Ping() => "Pong!";
 }

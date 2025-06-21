@@ -7,6 +7,7 @@ using NetCord.Hosting.Services;
 using NetCord.Hosting.Services.ApplicationCommands;
 using Lavalink4NET.NetCord;
 using Lavalink4NET.Extensions;
+using Microsoft.Extensions.DependencyInjection;
 
 var builder = Host.CreateApplicationBuilder(args);
 
@@ -18,7 +19,6 @@ builder.Services
     .AddDiscordGateway()
     .AddLavalink()
     .AddApplicationCommands();
-
 
 var host = builder.Build();
 
