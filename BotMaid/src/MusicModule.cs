@@ -2,6 +2,7 @@ namespace BotMaid;
 
 using System.Data.Common;
 using Lavalink4NET;
+using Lavalink4NET.Extensions;
 using Lavalink4NET.NetCord;
 using Lavalink4NET.Players;
 using Lavalink4NET.Rest.Entities.Tracks;
@@ -67,7 +68,7 @@ public class MusicModule(IAudioService audioService) : ApplicationCommandModule<
 
         await player.SkipAsync(quant);
 
-        var track = player.CurrentItem;
+        var track = player.CurrentTrack;
 
         if (track is null)
         {
@@ -75,7 +76,7 @@ public class MusicModule(IAudioService audioService) : ApplicationCommandModule<
         }
         else
         {
-            return $"Música pulada! Agora tocando: {track}";
+            return $"Música pulada! Agora tocando: {track.Title}";
         }
     }
 
@@ -105,7 +106,7 @@ public class MusicModule(IAudioService audioService) : ApplicationCommandModule<
             return "Não estou tocando nada!";
         }
 
-        TimeSpan ts = TimeSpan.FromSeconds(segundos) + TimeSpan.FromMinutes(minutos) + TimeSpan.FromMinutes(horas);
+        TimeSpan ts = TimeSpan.FromSeconds(segundos) + TimeSpan.FromMinutes(minutos) + TimeSpan.FromHours(horas);
 
         await player.SeekAsync(ts);
 
@@ -123,6 +124,56 @@ public class MusicModule(IAudioService audioService) : ApplicationCommandModule<
         }
     }
 
+    [SlashCommand("nowplaying", "Mostra qual música que está tocando atualmente!")]
+    public async Task<string> NowPlayingAsync()
+    {
+        var retrieveOptions = new PlayerRetrieveOptions(ChannelBehavior: PlayerChannelBehavior.Join);
+
+        var result = await audioService.Players
+            .RetrieveAsync(Context, playerFactory: PlayerFactory.Queued, retrieveOptions);
+
+        if (!result.IsSuccess)
+        {
+            return GetErrorMessage(result.Status);
+        }
+
+        var track = result.Player.CurrentTrack;
+
+        if (track is null)
+        {
+            return "Não estou tocando nada!";
+        }
+
+        return $"Tocando agora: {track.Title}";
+    }
+
+    [SlashCommand("playskip", "Toca a música imediatamente!")]
+    public async Task<string> PlaySkipAsync([SlashCommandParameter(Description = "Url ou pesquisa")] string query)
+    {
+        var retrieveOptions = new PlayerRetrieveOptions(ChannelBehavior: PlayerChannelBehavior.Join);
+
+        var result = await audioService.Players
+            .RetrieveAsync(Context, playerFactory: PlayerFactory.Queued, retrieveOptions);
+
+        if (!result.IsSuccess)
+        {
+            return GetErrorMessage(result.Status);
+        }
+
+        var player = result.Player;
+
+        var track = await audioService.Tracks
+            .LoadTrackAsync(query, TrackSearchMode.YouTube);
+
+        if (track is null)
+        {
+            return "Não achei nada!";
+        }
+
+        await player.PlayAsync(track, false);
+
+        return $"Tocando agora: {track.Title}";
+    }
 
     private static string GetErrorMessage(PlayerRetrieveStatus retrieveStatus) => retrieveStatus switch
     {
