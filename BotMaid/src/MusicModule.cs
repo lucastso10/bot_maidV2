@@ -6,12 +6,13 @@ using Lavalink4NET.Extensions;
 using Lavalink4NET.NetCord;
 using Lavalink4NET.Players;
 using Lavalink4NET.Rest.Entities.Tracks;
+using NetCord.Rest;
 using NetCord.Services.ApplicationCommands;
 
 public class MusicModule(IAudioService audioService) : ApplicationCommandModule<ApplicationCommandContext>
 {
     [SlashCommand("play", "Toca uma música!")]
-    public async Task<string> PlayAsync([SlashCommandParameter(Description = "Url ou pesquisa")] string query)
+    public async Task<InteractionMessageProperties> PlayAsync([SlashCommandParameter(Description = "Url ou pesquisa")] string query)
     {
         var retrieveOptions = new PlayerRetrieveOptions(ChannelBehavior: PlayerChannelBehavior.Join);
 
@@ -30,18 +31,18 @@ public class MusicModule(IAudioService audioService) : ApplicationCommandModule<
 
         if (track is null)
         {
-            return "Não achei nada!";
+            return MakeMessage("Não achei nada!", track);
         }
 
         await player.PlayAsync(track);
 
         if (player.Queue.IsEmpty)
         {
-            return $"Tocando agora: {track.Title}";
+            return MakeMessage($"Tocando agora!", track);
         }
         else
         {
-            return $"{track.Title} colocado na fila em posição {player.Queue.Count}";
+            return MakeMessage($"Na posição {player.Queue.Count} da fila!", track);
         }
     }
 
@@ -182,4 +183,13 @@ public class MusicModule(IAudioService audioService) : ApplicationCommandModule<
         PlayerRetrieveStatus.BotNotConnected => "O bot não está conectado.",
         _ => "Erro desconhecido.",
     };
+    private static InteractionMessageProperties MakeMessage(string title, Lavalink4NET.Tracks.LavalinkTrack video, string category = "None")
+    {
+        return new InteractionMessageProperties()
+            .AddEmbeds(new EmbedProperties()
+                .WithColor(new(0xD65AE4))
+                .WithTitle($"[{video.Title}]({video.Uri})")
+                .WithDescription(title)
+                .WithImage($"{video.ArtworkUri}"));
+    }
 }
