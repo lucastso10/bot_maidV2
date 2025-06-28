@@ -42,7 +42,7 @@ public class MusicModule(IAudioService audioService) : ApplicationCommandModule<
         }
         else
         {
-            return MakeMessage($"Na posição {player.Queue.Count} da fila!", track);
+            return MakeMessage($"Na {player.Queue.Count}º posição da fila!", track);
         }
     }
 
@@ -183,13 +183,22 @@ public class MusicModule(IAudioService audioService) : ApplicationCommandModule<
         PlayerRetrieveStatus.BotNotConnected => "O bot não está conectado.",
         _ => "Erro desconhecido.",
     };
-    private static InteractionMessageProperties MakeMessage(string title, Lavalink4NET.Tracks.LavalinkTrack video, string category = "None")
+
+    private static InteractionMessageProperties MakeMessage(string title, Lavalink4NET.Tracks.LavalinkTrack? video, string category = "None")
     {
+        if (video is null)
+        {
+            return new InteractionMessageProperties()
+                .AddEmbeds(new EmbedProperties()
+                    .WithColor(new(0xD65AE4))
+                    .WithTitle(title));
+        }
+
         return new InteractionMessageProperties()
             .AddEmbeds(new EmbedProperties()
                 .WithColor(new(0xD65AE4))
-                .WithTitle($"[{video.Title}]({video.Uri})")
-                .WithDescription(title)
+                .WithTitle(title)
+                .WithDescription($"[{video.Title}]({video.Uri})")
                 .WithImage($"{video.ArtworkUri}"));
     }
 }
